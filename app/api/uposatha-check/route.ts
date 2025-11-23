@@ -5,10 +5,11 @@ import nodemailer from "nodemailer";
 /**
  * ENV required:
  * - SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
- * - EMAIL_FROM, EMAIL_TO
+ * - EMAIL_FROM (e.g. 'Your Name <no-reply@domain.com>')
+ * - EMAIL_TO (comma-separated list, e.g. 'a@x.com,b@y.com')
  *
- * Note: This file formats dates as dd/mm/yyyy and includes expanded
- * canonical-based benefits text for observing the Eight Uposatha Precepts.
+ * Note: dates formatted as dd/mm/yyyy. Email includes expanded benefits text
+ * referencing canonical themes (suttas, Dhammapada) including rebirth to devas.
  */
 
 // ---- helpers ----
@@ -46,13 +47,7 @@ function formatVietnamDate(d: Date) {
     return `${dd}/${mm}/${yyyy}`;
 }
 
-/**
- * Canonically-inspired benefits text (concise, suitable for email).
- * Based on Pāli discourses about Uposatha and virtue (sīla), e.g. suttas
- * in the Uposathavagga (AN) and Dhammapada passages describing virtue's fruit.
- */
-
-// ---- build email contents ----
+// ---- expanded canonical-inspired benefits text (plain + html) ----
 function buildPlainText(
     found: { date: string; lunarDay: number; type: "today" | "upcoming" }[],
     todayStr: string
@@ -70,35 +65,38 @@ function buildPlainText(
     ].join("\n");
 
     const benefitsExpanded = [
-        "Lợi ích khi thọ trì Bát Quan Trai (tóm tắt, dựa trên tinh thần kinh điển Pāli):",
+        "Lợi ích khi thọ trì Bát Quan Trai (mở rộng, dựa trên tinh thần Kinh điển Nguyên thủy):",
         "",
         "1) Nền tảng cho trí tuệ (Paṭipatti → Paññā):",
-        "   Giữ giới làm cho thân khẩu ý an; khi tâm không loạn, trí tuệ dễ phát sinh (nhấn mạnh trong nhiều suttas và Dhammapada).",
+        "   Giữ giới khiến thân-khẩu-ý an; khi tâm không loạn, trí tuệ (paññā) dễ phát sinh — đây là nội dung lặp lại trong Dhammapada và nhiều suttas.",
         "",
-        "2) An tịnh nội tâm và khả năng nhập định:",
-        "   Hạn chế hành vi gây phiền não giúp tâm nhẹ, thuận cho thiền định và trải nghiệm jhāna nhỏ (AN suttas nêu lợi ích định khi giữ giới).",
+        "2) An tịnh nội tâm & khả năng nhập định:",
+        "   Tránh các duyên phân tán giúp tâm lắng, thuận cho pīti → passaddhi → samādhi (các trạng thái an tịnh và định).",
         "",
-        "3) Giảm nghiệp xấu và tăng phước:",
-        "   Giữ giới là hành động tạo thiện nghiệp; kinh điển nhiều lần khẳng định giữ giới đem lại quả thiện trong đời này và đời sau.",
+        "3) Giảm nghiệp xấu, tăng phước:",
+        "   Giữ giới là gieo nhân thiện sâu sắc; kinh điển nhấn mạnh phước do giữ sīla có thể đem lại kết quả tốt trong đời này và đời sau.",
         "",
-        "4) Giảm tham, sân, si và phóng dật:",
-        "   Các giới như kiêng rượu, không giải trí, không tô điểm… giúp giảm các duyên kéo tâm ra ngoài, gia tăng tĩnh lặng.",
+        "4) Khả năng sinh lên cõi chư thiên (deva):",
+        "   Nhiều đoạn kinh nêu rằng phước giữ giới (đặc biệt nếu thực hành thường xuyên) có thể đưa tới sinh về các cõi Thiên Dục (heavens), hưởng thọ an lạc và phước báu. Điều này không mâu thuẫn với mục tiêu giải thoát; nó là quả báo thiện do sīla tạo ra.",
         "",
-        "5) Thực tập như người xuất gia trong một ngày:",
-        "   Quan sát Bát Quan Trai giúp tạo duyên cho tinh tấn, khiêm cung và gieo duyên cho đời sống đạo sâu hơn.",
+        "5) Giảm tham-sân-si và phóng dật:",
+        "   Những giới như kiêng rượu, tạm dừng giải trí, không tô điểm giúp cắt các duyên làm phân tán tâm, tăng tĩnh lặng và chánh niệm.",
         "",
-        "6) Hợp xã hội và củng cố cộng đồng đạo đức:",
-        "   Việc chung tu (cư sĩ và Tăng Ni) làm tăng hoà hợp, củng cố giới pháp trong cộng đồng.",
+        "6) Sống như người xuất gia trong một ngày:",
+        "   Thực hành Bát Quan Trai tạo duyên cho tinh tấn, khiêm cung, và gieo mầm tu tập lâu dài; nhiều người sau đó thúc đẩy việc tu học sâu hơn.",
         "",
-        "7) Lợi ích ứng dụng thực tế:",
-        "   - Tâm an giúp ra quyết định sáng suốt hơn;\n   - Giảm hành vi gây hại với bản thân và người khác;\n   - Kích thích lòng từ, bố thí và hộ trì cộng đồng.",
+        "7) Hợp xã hội & củng cố cộng đồng đạo đức:",
+        "   Quan sát uposatha chung tăng sự hòa hợp, khuyến khích truyền thống giữ giới trong gia đình và cộng đồng.",
         "",
-        "Ghi chú: phần mô tả trên là diễn dịch ngắn gọn dựa trên các phần trình bày lợi ích giữ sīla trong Uposatha-related suttas và Dhammapada.",
+        "8) Phước ứng dụng thực tiễn:",
+        "   - Tâm an giúp ra quyết định sáng suốt hơn;\n   - Ít hành vi gây hại với bản thân và người khác;\n   - Kích thích lòng từ, bố thí và hộ trì cộng đồng.",
+        "",
+        "Ghi chú: bản tóm tắt trên là diễn dịch ngắn gọn theo tinh thần các suttas (ví dụ Uposatha-related suttas trong Aṅguttara Nikāya, và các chỉ dẫn về sīla trong Dhammapada).",
     ].join("\n");
 
     const footer = [
         "",
-        "Nguồn tham khảo (tóm tắt): Uposathavagga (Aṅguttara Nikāya), các suttas về Atthangika Uposatha; Dhammapada (về công đức sīla).",
+        "Nguồn tham khảo (tóm tắt): Uposathavagga (Aṅguttara Nikāya), các suttas Atthangika Uposatha; Dhammapada (về công đức giới).",
         "",
         "— Trân trọng,",
         "Uposatha Notifier",
@@ -118,20 +116,19 @@ function buildHtml(
             : `Sắp tới: ${nearest.date} — (âm ≈ ${nearest.lunarDay})`;
 
     const rows = found
-        .map(
-            (f) =>
-                `<li><strong>${f.date}</strong> — ngày âm ≈ ${f.lunarDay} <em>(${f.type})</em></li>`
-        )
+        .map((f) => `<li><strong>${f.date}</strong> — ngày âm ≈ ${f.lunarDay} <em>(${f.type})</em></li>`)
         .join("");
 
     const benefitsHtml = `
     <ol>
       <li><strong>Nền tảng cho trí tuệ:</strong> Giữ giới làm cho thân-khẩu-ý an tịnh; khi tâm an, trí tuệ (paññā) dễ phát sinh — một chủ đề lặp lại trong Dhammapada và nhiều suttas.</li>
-      <li><strong>An tịnh nội tâm & khả năng nhập định:</strong> Hạn chế các duyên phiền não tạo điều kiện cho thiền và trạng thái tĩnh lặng (jhāna) — lợi ích được nhắc trong các suttas Uposatha/AN.</li>
+      <li><strong>An tịnh nội tâm & khả năng nhập định:</strong> Hạn chế các duyên phiền não tạo điều kiện cho thiền và trạng thái tĩnh lặng (jhāna).</li>
       <li><strong>Giảm nghiệp xấu, tăng phước:</strong> Giữ giới là gieo nhân thiện, dẫn tới kết quả thuận lợi trong đời này và đời sau.</li>
-      <li><strong>Giảm tham-sân-si:</strong> Các giới như kiêng rượu, giải trí, không tô điểm giúp giảm các duyên làm phân tán tâm.</li>
+      <li><strong>Khả năng sinh lên cõi chư thiên:</strong> Phước do giữ giới (nếu nhiều và bền) có thể dẫn tới sinh về các cõi thiên, hưởng an lạc — điều này được nêu trong nhiều suttas về công đức.</li>
+      <li><strong>Giảm tham-sân-si:</strong> Các giới như kiêng rượu, không giải trí, không tô điểm giúp giảm các duyên làm phân tán tâm.</li>
       <li><strong>Sống như người xuất gia trong một ngày:</strong> Tạo duyên cho tinh tấn, khiêm cung và gieo mầm tu tập lâu dài.</li>
       <li><strong>Hợp xã hội & hỗ trợ cộng đồng:</strong> Quan sát uposatha chung gia tăng hoà hợp và khuyến khích đời sống đạo đức cộng đồng.</li>
+      <li><strong>Lợi ích thực tiễn:</strong> Tâm an giúp ra quyết định sáng suốt; giảm hành vi gây hại; kích thích lòng từ và bố thí.</li>
     </ol>
   `;
 
@@ -152,6 +149,7 @@ function buildHtml(
       .note { background:#f7f9fb; padding:10px; border-radius:6px; font-size:13px; color:#333; }
       footer { margin-top:16px; color:#666; font-size:13px; }
       .date-pill { display:inline-block; background:#eef6ff; color:#064e9a; padding:6px 10px; border-radius:6px; font-weight:600; margin-bottom:10px; }
+      .recipients { font-size:13px; color:#555; margin-top:6px; }
     </style>
   </head>
   <body>
@@ -172,7 +170,7 @@ function buildHtml(
 
       <footer>
         <p>— Trân trọng,<br/>Uposatha Notifier</p>
-        <p style="font-size:12px;color:#888;margin-top:10px;">Nguồn (tóm lược): Uposathavagga (Aṅguttara Nikāya), các suttas về Atthangika Uposatha; Dhammapada (về công đức sīla).</p>
+        <p style="font-size:12px;color:#888;margin-top:10px;">Nguồn (tóm lược): Uposathavagga (Aṅguttara Nikāya), các suttas Atthangika Uposatha; Dhammapada (về công đức sīla).</p>
       </footer>
     </div>
   </body>
@@ -181,20 +179,26 @@ function buildHtml(
     return html;
 }
 
-// ---- mail sender ----
+// ---- mail sender (supports multiple recipients via EMAIL_TO comma-separated) ----
 async function sendMail(subject: string, text: string, html: string) {
     const host = process.env.SMTP_HOST;
     const port = Number(process.env.SMTP_PORT || 587);
     const user = process.env.SMTP_USER;
     const pass = process.env.SMTP_PASS;
     const from = process.env.EMAIL_FROM;
-    const to = process.env.EMAIL_TO;
+    const toRaw = process.env.EMAIL_TO || "";
 
-    if (!host || !user || !pass || !from || !to) {
+    if (!host || !user || !pass || !from || !toRaw) {
         throw new Error(
             "Missing SMTP or email env vars. Please set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, EMAIL_FROM, EMAIL_TO"
         );
     }
+
+    // parse recipients: support "a@x.com, b@y.com"
+    const toList = toRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
 
     const transporter = nodemailer.createTransport({
         host,
@@ -205,27 +209,27 @@ async function sendMail(subject: string, text: string, html: string) {
 
     const info = await transporter.sendMail({
         from,
-        to,
+        to: toList, // array accepted by nodemailer
         subject,
         text,
         html,
     });
 
-    return info;
+    return { info, toList };
 }
 
 // ---- main handler ----
 export async function GET(request: Request) {
     try {
-        // Optional: CRON_SECRET protection
+        // Optional: CRON_SECRET protection (uncomment to enable)
         // const authHeader = request.headers.get("Authorization");
         // if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
         //   return new Response("Unauthorized", { status: 401 });
         // }
 
-        // Use VN date/time base (approximate UTC+7 conversion)
+        // VN time approx (convert to UTC+7 baseline)
         const now = new Date();
-        const todayVN = new Date(now.getTime() + (7 * 60 + now.getTimezoneOffset()) * 60000); // approximate convert to UTC+7
+        const todayVN = new Date(now.getTime() + (7 * 60 + now.getTimezoneOffset()) * 60000);
         const daysToCheck = 7;
         const found: { date: string; lunarDay: number; type: "today" | "upcoming" }[] = [];
 
@@ -251,7 +255,7 @@ export async function GET(request: Request) {
             });
         }
 
-        // Build subject to include solar + lunar for nearest found
+        // Build subject including nearest solar + lunar
         const nearest = found[0];
         const subject = nearest.type === "today"
             ? `Thông báo: Hôm nay có khả năng là Uposatha — ${nearest.date} (âm ≈ ${nearest.lunarDay})`
@@ -260,12 +264,13 @@ export async function GET(request: Request) {
         const plain = buildPlainText(found, formatVietnamDate(todayVN));
         const html = buildHtml(found, formatVietnamDate(todayVN));
 
-        const info = await sendMail(subject, plain, html);
+        const { info, toList } = await sendMail(subject, plain, html);
 
         return NextResponse.json({
             ok: true,
             message: "Đã phát hiện Uposatha và gửi email thông báo.",
             found,
+            recipients: toList,
             mail: { accepted: info.accepted, messageId: info.messageId },
         });
     } catch (err: any) {
