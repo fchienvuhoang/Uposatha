@@ -8,8 +8,8 @@ import nodemailer from "nodemailer";
  * - EMAIL_FROM (e.g. 'Your Name <no-reply@domain.com>')
  * - EMAIL_TO (comma-separated list, e.g. 'a@x.com,b@y.com')
  *
- * Note: dates formatted as dd/mm/yyyy. Email includes expanded benefits text
- * referencing canonical themes (suttas, Dhammapada) including rebirth to devas.
+ * Note: dates formatted as dd/mm/yyyy. Email includes full benefits text
+ * of observing the Eight Uposatha Precepts (Bát Quan Trai).
  */
 
 // ---- helpers ----
@@ -47,7 +47,7 @@ function formatVietnamDate(d: Date) {
     return `${dd}/${mm}/${yyyy}`;
 }
 
-// ---- expanded canonical-inspired benefits text (plain + html) ----
+// ---- full benefits text (plain + html) ----
 function buildPlainText(
     found: { date: string; lunarDay: number; type: "today" | "upcoming" }[],
     todayStr: string
@@ -57,52 +57,65 @@ function buildPlainText(
             ? `Hôm nay (${found[0].date}) có khả năng là ngày Uposatha (ngày âm ≈ ${found[0].lunarDay}).`
             : `Sắp có ngày Uposatha: (gần nhất: ${found[0].date} — âm ≈ ${found[0].lunarDay})`;
 
-    const list = found.map((f) => `- ${f.date} (ngày âm ≈ ${f.lunarDay}) — ${f.type}`).join("\n");
+    const list = found.map((f) => `- ${f.date} (âm ≈ ${f.lunarDay}) — ${f.type}`).join("\n");
 
-    const meaning = [
+    const intro = [
         "Ý nghĩa của ngày Uposatha:",
         "Uposatha (Bố-tát) là ngày thanh tịnh theo truyền thống Nguyên thủy — thời điểm để quay về giới-định-tuệ, làm mới đời sống phạm hạnh, tăng cường thiền và phát triển trí tuệ.",
+        "",
     ].join("\n");
 
-    const benefitsExpanded = [
-        "Lợi ích khi thọ trì Bát Quan Trai (mở rộng, dựa trên tinh thần Kinh điển Nguyên thủy):",
+    const benefits = [
+        "LỢI ÍCH KHI THỌ TRÌ BÁT QUAN TRAI (ĐẦY ĐỦ)",
         "",
-        "1) Nền tảng cho trí tuệ (Paṭipatti → Paññā):",
-        "   Giữ giới khiến thân-khẩu-ý an; khi tâm không loạn, trí tuệ (paññā) dễ phát sinh — đây là nội dung lặp lại trong Dhammapada và nhiều suttas.",
+        "1) Tăng trưởng phước báu lớn (puñña):",
+        "   Đức Phật dạy rằng người giữ giới thanh tịnh trong ngày Uposatha tạo được phước báu lớn, vượt qua nhiều hình thức bố thí. Phước này đem lại an vui trong hiện tại và quả lành trong tương lai.",
         "",
-        "2) An tịnh nội tâm & khả năng nhập định:",
-        "   Tránh các duyên phân tán giúp tâm lắng, thuận cho pīti → passaddhi → samādhi (các trạng thái an tịnh và định).",
+        "2) Tâm không hối hận → an lạc → dễ nhập định:",
+        "   Giới trong sạch dẫn đến không hối hận, hoan hỷ, hỷ, an tịnh, lạc và định (samādhi). Khi giữ 8 giới, tâm nhẹ, dễ tập trung và dễ vào các trạng thái an tĩnh của thiền.",
         "",
-        "3) Giảm nghiệp xấu, tăng phước:",
-        "   Giữ giới là gieo nhân thiện sâu sắc; kinh điển nhấn mạnh phước do giữ sīla có thể đem lại kết quả tốt trong đời này và đời sau.",
+        "3) Giảm tham – sân – si rõ rệt:",
+        "   Bát Quan Trai cắt đứt các duyên khiến tâm phóng dật (ăn uống phi thời, trang điểm, giải trí, v.v.), giúp tâm trở lại trạng thái thanh khiết, nhẹ và sáng.",
         "",
-        "4) Khả năng sinh lên cõi chư thiên (deva):",
-        "   Nhiều đoạn kinh nêu rằng phước giữ giới (đặc biệt nếu thực hành thường xuyên) có thể đưa tới sinh về các cõi Thiên Dục (heavens), hưởng thọ an lạc và phước báu. Điều này không mâu thuẫn với mục tiêu giải thoát; nó là quả báo thiện do sīla tạo ra.",
+        "4) Tạo duyên sinh lên cõi chư thiên (deva):",
+        "   Nhiều đoạn kinh nêu rằng phước do giữ giới (đặc biệt nếu thực hành thường xuyên) có thể đưa tới sinh về các cõi Thiên Dục, hưởng thọ an lạc và phước báu. Đây là quả báo thiện do sīla tạo ra.",
         "",
-        "5) Giảm tham-sân-si và phóng dật:",
-        "   Những giới như kiêng rượu, tạm dừng giải trí, không tô điểm giúp cắt các duyên làm phân tán tâm, tăng tĩnh lặng và chánh niệm.",
+        "5) Sống như người xuất gia trong một ngày:",
+        "   Bát Quan Trai là một phiên bản nhẹ của giới luật xuất gia — một ngày sống đời Phạm hạnh — tạo duyên cho tinh tấn, khiêm cung và gieo mầm tu tập lâu dài.",
         "",
-        "6) Sống như người xuất gia trong một ngày:",
-        "   Thực hành Bát Quan Trai tạo duyên cho tinh tấn, khiêm cung, và gieo mầm tu tập lâu dài; nhiều người sau đó thúc đẩy việc tu học sâu hơn.",
+        "6) Tịnh hoá nghiệp quá khứ:",
+        "   Giữ giới giúp 'đốt bớt' nghiệp nhỏ và chặn nghiệp bất thiện mới phát sinh; giới được ví như lá chắn bảo vệ khỏi nghiệp xấu.",
         "",
-        "7) Hợp xã hội & củng cố cộng đồng đạo đức:",
-        "   Quan sát uposatha chung tăng sự hòa hợp, khuyến khích truyền thống giữ giới trong gia đình và cộng đồng.",
+        "7) Tâm sáng suốt, dễ phát sinh trí tuệ (paññā):",
+        "   Khi tâm không còn tham dục và phân tán, chánh niệm mạnh, nhận thức rõ vô thường, khổ, vô ngã — tiền đề cho trí tuệ phát triển.",
         "",
-        "8) Phước ứng dụng thực tiễn:",
-        "   - Tâm an giúp ra quyết định sáng suốt hơn;\n   - Ít hành vi gây hại với bản thân và người khác;\n   - Kích thích lòng từ, bố thí và hộ trì cộng đồng.",
+        "8) Giảm nghiệp liên quan đến sắc dục & dính mắc:",
+        "   Giới cấm dâm dục trong Bát Quan Trai giúp giảm dính mắc, tăng tự chủ nội tâm, là nền tảng cho thiền bền vững.",
         "",
-        "Ghi chú: bản tóm tắt trên là diễn dịch ngắn gọn theo tinh thần các suttas (ví dụ Uposatha-related suttas trong Aṅguttara Nikāya, và các chỉ dẫn về sīla trong Dhammapada).",
-    ].join("\n");
-
-    const footer = [
+        "9) Giảm nghiện công nghệ, giải trí, mạng xã hội:",
+        "   Hạn chế giải trí và ca nhạc giúp giảm kích thích liên tục, làm tăng khả năng tĩnh lặng và chánh niệm trong đời sống hàng ngày.",
         "",
-        "Nguồn tham khảo (tóm tắt): Uposathavagga (Aṅguttara Nikāya), các suttas Atthangika Uposatha; Dhammapada (về công đức giới).",
+        "10) Lợi ích cho sức khoẻ — đặc biệt tiêu hoá:",
+        "   Không ăn chiều giúp hệ tiêu hoá nghỉ ngơi, ổn định đường huyết, ngủ sâu hơn và cải thiện sức khỏe tổng quát.",
+        "",
+        "11) Tăng khả năng kiểm soát bản thân (viriya):",
+        "   Một ngày hoàn toàn kiềm chế thói quen tăng nghị lực: nói 'không' với ham muốn, giúp xây dựng ý chí bền bỉ.",
+        "",
+        "12) Góp phần xây dựng cộng đồng đạo đức:",
+        "   Thực hành Uposatha theo nhóm tăng hoà hợp, lan tỏa giá trị giữ giới trong gia đình và cộng đồng, gieo duyên lành cho người thân.",
+        "",
+        "TÓM TẮT:",
+        " - Phước lớn, an lạc hiện tại và quả lành sau này.",
+        " - Tăng định, trí tuệ và giảm phiền não.",
+        " - Gieo duyên xuất gia tạm thời, có thể dẫn tới đời sống tu học sâu hơn.",
+        "",
+        "Nguồn tham khảo: tóm lược từ tinh thần kinh điển Nguyên thủy (Uposathavagga, Aṅguttara Nikāya; Dhammapada).",
         "",
         "— Trân trọng,",
         "Uposatha Notifier",
     ].join("\n");
 
-    return [header, "", list, "", meaning, "", benefitsExpanded, "", footer].join("\n");
+    return [header, "", list, "", intro, benefits].join("\n");
 }
 
 function buildHtml(
@@ -116,20 +129,27 @@ function buildHtml(
             : `Sắp tới: ${nearest.date} — (âm ≈ ${nearest.lunarDay})`;
 
     const rows = found
-        .map((f) => `<li><strong>${f.date}</strong> — ngày âm ≈ ${f.lunarDay} <em>(${f.type})</em></li>`)
+        .map((f) => `<li><strong>${f.date}</strong> — âm ≈ ${f.lunarDay} <em>(${f.type})</em></li>`)
         .join("");
 
     const benefitsHtml = `
+    <h3>LỢI ÍCH KHI THỌ TRÌ BÁT QUAN TRAI (CHI TIẾT)</h3>
     <ol>
-      <li><strong>Nền tảng cho trí tuệ:</strong> Giữ giới làm cho thân-khẩu-ý an tịnh; khi tâm an, trí tuệ (paññā) dễ phát sinh — một chủ đề lặp lại trong Dhammapada và nhiều suttas.</li>
-      <li><strong>An tịnh nội tâm & khả năng nhập định:</strong> Hạn chế các duyên phiền não tạo điều kiện cho thiền và trạng thái tĩnh lặng (jhāna).</li>
-      <li><strong>Giảm nghiệp xấu, tăng phước:</strong> Giữ giới là gieo nhân thiện, dẫn tới kết quả thuận lợi trong đời này và đời sau.</li>
-      <li><strong>Khả năng sinh lên cõi chư thiên:</strong> Phước do giữ giới (nếu nhiều và bền) có thể dẫn tới sinh về các cõi thiên, hưởng an lạc — điều này được nêu trong nhiều suttas về công đức.</li>
-      <li><strong>Giảm tham-sân-si:</strong> Các giới như kiêng rượu, không giải trí, không tô điểm giúp giảm các duyên làm phân tán tâm.</li>
-      <li><strong>Sống như người xuất gia trong một ngày:</strong> Tạo duyên cho tinh tấn, khiêm cung và gieo mầm tu tập lâu dài.</li>
-      <li><strong>Hợp xã hội & hỗ trợ cộng đồng:</strong> Quan sát uposatha chung gia tăng hoà hợp và khuyến khích đời sống đạo đức cộng đồng.</li>
-      <li><strong>Lợi ích thực tiễn:</strong> Tâm an giúp ra quyết định sáng suốt; giảm hành vi gây hại; kích thích lòng từ và bố thí.</li>
+      <li><strong>Tăng trưởng phước báu lớn (puñña):</strong> Giữ giới thanh tịnh tạo phước lớn, an vui hiện tại và quả lành trong tương lai.</li>
+      <li><strong>Tâm không hối hận → an lạc → dễ nhập định:</strong> Giới trong sạch dẫn tới chuỗi: không hối hận → hoan hỷ → an tịnh → lạc → định.</li>
+      <li><strong>Giảm tham – sân – si:</strong> Bát Quan Trai cắt đứt các duyên khiến tâm phóng dật, giúp tâm trở nên thanh khiết và nhẹ nhàng.</li>
+      <li><strong>Tạo duyên sinh lên cõi chư thiên (deva):</strong> Phước do giữ giới thường có thể dẫn tới sinh về các cõi thiên, hưởng an lạc.</li>
+      <li><strong>Sống như người xuất gia trong một ngày:</strong> Phiên bản nhẹ của đời xuất gia, tạo duyên cho tinh tấn và gieo mầm tu tập.</li>
+      <li><strong>Tịnh hoá nghiệp quá khứ:</strong> Giới giúp làm sạch nhiều nghiệp nhỏ và ngăn chặn nghiệp bất thiện mới.</li>
+      <li><strong>Tâm sáng suốt, dễ phát sinh trí tuệ (paññā):</strong> Tâm bớt phân tán, chánh niệm mạnh, dẫn tới hiểu biết sâu sắc về pháp.</li>
+      <li><strong>Giảm nghiệp liên quan đến sắc dục & dính mắc:</strong> Giới cấm dâm dục giúp tăng tự chủ và giảm dính mắc.</li>
+      <li><strong>Giảm nghiện công nghệ & giải trí:</strong> Hạn chế giải trí giúp tăng khả năng tĩnh lặng và chánh niệm.</li>
+      <li><strong>Lợi ích cho sức khoẻ (tiêu hoá):</strong> Không ăn chiều giúp hệ tiêu hoá nghỉ ngơi, ngủ sâu hơn và cải thiện sức khỏe.</li>
+      <li><strong>Tăng khả năng kiểm soát bản thân (viriya):</strong> Việc kiên trì một ngày giúp tăng nghị lực và khả năng nói 'không' với ham muốn.</li>
+      <li><strong>Góp phần xây dựng cộng đồng đạo đức:</strong> Thực hành chung tăng hoà hợp, lan tỏa giữ giới trong gia đình và xã hội.</li>
     </ol>
+    <p><strong>Tóm tắt:</strong> Phước lớn, tăng định-trí tuệ, giảm phiền não, gieo duyên cho đời tu học và có lợi cho sức khoẻ cũng như cộng đồng.</p>
+    <p style="font-size:12px;color:#666;">Nguồn tham khảo: tóm lược từ tinh thần kinh điển Nguyên thủy (Uposathavagga, Aṅguttara Nikāya; Dhammapada).</p>
   `;
 
     const html = `<!doctype html>
@@ -149,7 +169,6 @@ function buildHtml(
       .note { background:#f7f9fb; padding:10px; border-radius:6px; font-size:13px; color:#333; }
       footer { margin-top:16px; color:#666; font-size:13px; }
       .date-pill { display:inline-block; background:#eef6ff; color:#064e9a; padding:6px 10px; border-radius:6px; font-weight:600; margin-bottom:10px; }
-      .recipients { font-size:13px; color:#555; margin-top:6px; }
     </style>
   </head>
   <body>
@@ -165,12 +184,10 @@ function buildHtml(
       <h2>Ý nghĩa của ngày Uposatha</h2>
       <p>Uposatha (Bố-tát) là ngày để làm mới đời sống giới-định-tuệ, tạm dừng thói quen thế gian và nuôi dưỡng tâm an lạc, theo tinh thần kinh điển Nguyên thủy.</p>
 
-      <h2>Lợi ích khi thọ trì Bát Quan Trai (8 giới)</h2>
       ${benefitsHtml}
 
       <footer>
         <p>— Trân trọng,<br/>Uposatha Notifier</p>
-        <p style="font-size:12px;color:#888;margin-top:10px;">Nguồn (tóm lược): Uposathavagga (Aṅguttara Nikāya), các suttas Atthangika Uposatha; Dhammapada (về công đức sīla).</p>
       </footer>
     </div>
   </body>
@@ -185,7 +202,7 @@ async function sendMail(subject: string, text: string, html: string) {
     const port = Number(process.env.SMTP_PORT || 587);
     const user = process.env.SMTP_USER;
     const pass = process.env.SMTP_PASS;
-    const from = process.env.EMAIL_FROM;
+    const from = process.env.EMAIL_FROM || "";
     const toRaw = process.env.EMAIL_TO || "";
 
     if (!host || !user || !pass || !from || !toRaw) {
